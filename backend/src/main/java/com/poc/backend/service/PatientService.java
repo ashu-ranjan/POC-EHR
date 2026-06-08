@@ -46,4 +46,14 @@ public class PatientService {
                                 .execute()
                                 .getResource();
     }
+
+    public Patient updatePatient(String id, Patient patient){
+        patient.setId(id);
+
+        return (Patient) fhirClient
+                    .update()
+                    .resource(patient)
+                    .execute()
+                    .getResource();
+    }
 }

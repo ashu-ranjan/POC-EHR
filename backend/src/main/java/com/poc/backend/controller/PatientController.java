@@ -21,7 +21,7 @@ public class PatientController {
     }
 
     @PostMapping("/Patient")
-    public String createPatient(@RequestBody String body){
+    public String create(@RequestBody String body){
 
         
         Patient patient = (Patient) FhirContext.forR4()
@@ -30,8 +30,7 @@ public class PatientController {
 
 
         Patient created = patientService.createPatient(patient);
-
-        patientService.save(created);
+        patientService.savePatient(created);
 
         return FhirContext.forR4()
                             .newJsonParser()
@@ -40,15 +39,13 @@ public class PatientController {
     }
 
     @PutMapping("/Patient/{id}")
-    public String updatePatient(@PathVariable String id, @RequestBody String body){
+    public String update(@PathVariable String id, @RequestBody String body){
         Patient patient = (Patient) FhirContext.forR4()
                             .newJsonParser()
                             .parseResource(body);
-        patient.setId(id);
 
         Patient updated = patientService.updatePatient(id, patient);
-        
-        patientService.save(updated);
+        patientService.savePatient(updated);
 
         return FhirContext.forR4()
                         .newJsonParser()

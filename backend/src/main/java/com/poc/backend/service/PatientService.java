@@ -19,15 +19,15 @@ public class PatientService {
     @Autowired
     private IGenericClient fhirClient;
 
-    // private static final String BASE_URL = "http://localhost:8080/fhir/Patient/" ;
+    // CREATE PATIENT 
 
-
-    // Create Patient and save to DB
-
+    // Saving Created Patient in DB
     public PatientEntity savePatient(Patient patient){
+
         // if(!patient.hasId()){
         //     patient.setId(IdGenerator.generatePatientId("PAT", 10, 10));
         // }
+
         String id = patient.getIdElement().getIdPart();
 
         String baseUrl = ServletUriComponentsBuilder
@@ -40,8 +40,7 @@ public class PatientService {
         return patientRepository.save(entity);
     }
 
-    // Create Patient and save to FHIR server
-
+    // Created Patient in FHIR
     public Patient createPatient(Patient patient){
         return (Patient) fhirClient
                                 .create()
@@ -50,9 +49,10 @@ public class PatientService {
                                 .getResource();
     }
 
-    // Update Patient
+    // UPDATE PATIENT
 
     public Patient updatePatient(String id, Patient patient){
+
         patient.setId(id);
 
         return (Patient) fhirClient

@@ -21,13 +21,11 @@ public class PractitionerService {
     @Autowired
     private IGenericClient fhirClient;
 
-    // Create Practitioner Logic
+    // CREATE PRACTITIONER
 
+    // Saving created practitioner in DB
     public PractitionerEntity savePractitioner(Practitioner practitioner){
 
-        // if(!practitioner.hasId()){
-        //     practitioner.setId(IdGenerator.generateDoctorId("DOC", 7, 7));
-        // }
         String id = practitioner.getIdElement().getIdPart();
         
         if(practitioner.getIdentifier().isEmpty()){
@@ -50,21 +48,17 @@ public class PractitionerService {
         return practitionerRepository.save(entity);
     }
 
-    // Create Practitioner to FHIR Server
-
+    // Created practitioner in FHIR
     public Practitioner createPractitioner(Practitioner practitioner){
 
-        // practitioner.setIdElement(null);
-        // practitioner.setMeta(null);
         return (Practitioner) fhirClient
-        
                                     .create()
                                     .resource(practitioner)
                                     .execute()
                                     .getResource();
     }
 
-    // Update Pratitioner Logic
+    // UPDATE PRACTITIONER
 
     public Practitioner updatePractitioner(String id, Practitioner practitioner){
         practitioner.setId(id);

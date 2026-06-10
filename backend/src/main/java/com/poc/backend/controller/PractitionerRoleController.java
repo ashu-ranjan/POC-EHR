@@ -1,40 +1,40 @@
 package com.poc.backend.controller;
 
-import org.hl7.fhir.r4.model.Practitioner;
+import org.hl7.fhir.r4.model.PractitionerRole;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.poc.backend.service.PractitionerService;
+import com.poc.backend.service.PractitionerRoleService;
 
 import ca.uhn.fhir.context.FhirContext;
 
 @RestController
-public class PractitionerController {
+public class PractitionerRoleController {
 
     private final FhirContext context = FhirContext.forR4();
 
-    private PractitionerService practitionerService;
-    
-    public PractitionerController(PractitionerService practitionerService){
-        this.practitionerService = practitionerService;
+    private PractitionerRoleService practitionerRoleService;
+
+    public PractitionerRoleController(PractitionerRoleService practitionerRoleService){
+        this.practitionerRoleService = practitionerRoleService;
     }
 
     // Create API 
 
-    @PostMapping("/Practitioner")
+    @PostMapping("/PractitionerRole")
     public String create(@RequestBody String body){
-        Practitioner practitioner = (Practitioner) context
+        PractitionerRole role = (PractitionerRole) context
                                         .newJsonParser()
                                         .parseResource(body);
 
         // Create in FHIR
-        Practitioner created = practitionerService.createPractitioner(practitioner);
+        PractitionerRole created = practitionerRoleService.creatPractitionerRole(role);
 
         // Save create in DB
-        practitionerService.savePractitioner(created);
+        practitionerRoleService.savePractitionerRole(created);
 
         return context
                 .newJsonParser()
@@ -44,17 +44,17 @@ public class PractitionerController {
 
     // Update API
 
-    @PutMapping("/Practitioner/{id}")
+    @PutMapping("/PractitionerRole/{id}")
     public String update(@PathVariable String id, @RequestBody String body){
-        Practitioner practitioner = (Practitioner) context
+        PractitionerRole role = (PractitionerRole) context
                                         .newJsonParser()
                                         .parseResource(body);
 
         // Update in FHIR
-        Practitioner updated = practitionerService.updatePractitioner(id, practitioner);
+        PractitionerRole updated = practitionerRoleService.updatePractitionerRole(id, role);
 
         // Save update in DB
-        practitionerService.savePractitioner(updated);
+        practitionerRoleService.savePractitionerRole(updated);
 
         return context
                 .newJsonParser()

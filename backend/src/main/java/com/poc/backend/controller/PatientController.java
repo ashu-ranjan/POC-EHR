@@ -20,6 +20,8 @@ public class PatientController {
         this.patientService = patientService;
     }
 
+    // Create API
+
     @PostMapping("/Patient")
     public String create(@RequestBody String body){
 
@@ -29,7 +31,10 @@ public class PatientController {
                     .parseResource(body);
 
 
+        // Create in FHIR
         Patient created = patientService.createPatient(patient);
+
+        // Save create in DB
         patientService.savePatient(created);
 
         return FhirContext.forR4()
@@ -38,13 +43,18 @@ public class PatientController {
                             .encodeResourceToString(created);
     }
 
+    // Update API
+
     @PutMapping("/Patient/{id}")
     public String update(@PathVariable String id, @RequestBody String body){
         Patient patient = (Patient) FhirContext.forR4()
                             .newJsonParser()
                             .parseResource(body);
 
+        // Update in FHIR
         Patient updated = patientService.updatePatient(id, patient);
+
+        // Save update in DB
         patientService.savePatient(updated);
 
         return FhirContext.forR4()

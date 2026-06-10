@@ -21,35 +21,44 @@ import lombok.Setter;
 @Table(name = "patient")
 public class PatientEntity {
 
+    // Id
     @Id
     private String id;
 
+    // Name
     @Column(name = "first_name")
     private String firstName;
 
     @Column(name = "last_name")
     private String lastName;
 
+    // Gender
     @Column(name = "gender")
     private String gender;
 
+    // DOB
     @Column(name = "birth_date")
     private LocalDate birthDate;
 
+    // Meta
     @Column(name = "last_updated")
     private OffsetDateTime lastUpdated;
 
     private String source;
-
-    @Lob
-    @Column(name = "resource_json", columnDefinition = "TEXT")
-    private String resourceJson;
 
     @Column(name = "full_url")
     private String fullUrl;
 
     @Column(name = "search_mode")
     private String searchMode;
+
+    // Resource Json
+    @Lob
+    @Column(name = "resource_json", columnDefinition = "TEXT")
+    private String resourceJson;
+
+
+    
 
 
 }

@@ -29,9 +29,15 @@ public class IdGenerator {
         return prefix + "-" + generate(minLen, maxLen);
     }
 
-    // Identifier generator
+    // Practitioner Identifier generator
 
     public static String generateDocIdentifier(String prefix, int minLen, int maxLen){
+        return prefix + generate(minLen, maxLen);
+    }
+
+    // Organization Identifier generator
+
+    public static String generateOrgIdentifier(String prefix, int minLen, int maxLen){
         return prefix + generate(minLen, maxLen);
     }
 }

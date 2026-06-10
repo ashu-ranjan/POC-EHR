@@ -13,29 +13,38 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "practitioner")
+@Table(name = "organization")
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-public class PractitionerEntity {
+@AllArgsConstructor
+public class OrganizationEntity {
 
     // Id
     @Id
     private String id;
-
-    // Name and status
-    @Column(name = "first_name")
-    private String firstName;
-
-    @Column(name = "last_name")
-    private String lastName;
-
-    private boolean active;
+    
+    // Name and Status
+    private String name;
+    private Boolean active;
 
     // Identifier
-    private String email;
+    @Column(name = "identifier", columnDefinition = "TEXT")
     private String identifier;
+
+    // Type
+    @Column(name = "type_code")
+    private String typeCode;
+
+    @Column(name = "type_display")
+    private String typeDisplay;
+
+    // Contact
+    @Column(name = "telecom", columnDefinition = "TEXT")
+    private String telecom;
+
+    // Address
+    private String address;
 
     // Meta
     @Column(name = "version_id")
@@ -44,14 +53,12 @@ public class PractitionerEntity {
     @Column(name = "last_updated")
     private OffsetDateTime lastUpdated;
 
-    @Column(name = "full_url")
     private String fullUrl;
-
-    @Column(name = "search_mode")
     private String searchMode;
 
     // Resource Json
     @Lob
     @Column(name = "resource_json", columnDefinition = "TEXT")
     private String resourceJson;
+
 }

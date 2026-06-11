@@ -24,6 +24,7 @@ public class OrganizationService {
     // Create Organization
 
     public OrganizationEntity saveOrganization(Organization organization){
+        
         String id = organization.getIdElement().getIdPart();
 
         if(organization.getIdentifier().isEmpty()){

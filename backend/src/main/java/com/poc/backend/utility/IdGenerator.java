@@ -40,6 +40,13 @@ public class IdGenerator {
     public static String generateOrgIdentifier(String prefix, int minLen, int maxLen){
         return prefix + generate(minLen, maxLen);
     }
+
+    // Location Identifier Generator
+
+    public static String generateLocIdentifier(String prefix, int minLen, int maxLen){
+        return prefix + generate(minLen, maxLen);
+    }
+    
 }
 
 

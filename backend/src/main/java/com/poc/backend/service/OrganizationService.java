@@ -1,7 +1,6 @@
 package com.poc.backend.service;
 
 import org.hl7.fhir.r4.model.Organization;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -15,13 +14,16 @@ import ca.uhn.fhir.rest.client.api.IGenericClient;
 @Service
 public class OrganizationService {
 
-    @Autowired
-    private OrganizationRepository organizationRepository;
+    private final OrganizationRepository organizationRepository;
+    private final IGenericClient fhirClient;
 
-    @Autowired
-    private IGenericClient fhirClient;
+    // Constructor Injection
+    public OrganizationService(OrganizationRepository organizationRepository, IGenericClient fhirClient) {
+        this.organizationRepository = organizationRepository;
+        this.fhirClient = fhirClient;
+    }
 
-    // Create Organization
+    // CREATE ORGANIZATION
 
     public OrganizationEntity saveOrganization(Organization organization){
         
@@ -59,7 +61,7 @@ public class OrganizationService {
                     .getResource();
     }
 
-    // Update Organization
+    // UPDATE ORGANIZATION
 
     public Organization updateOrganization(String id, Organization organization){
 

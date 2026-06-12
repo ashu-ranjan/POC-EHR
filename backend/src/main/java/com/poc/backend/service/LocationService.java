@@ -1,7 +1,6 @@
 package com.poc.backend.service;
 
 import org.hl7.fhir.r4.model.Location;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -15,14 +14,17 @@ import ca.uhn.fhir.rest.client.api.IGenericClient;
 @Service
 public class LocationService {
 
-    @Autowired
-    private LocationRepository locationRepository;
+    private final LocationRepository locationRepository;
+    private final IGenericClient fhirClient;
 
-    @Autowired
-    private IGenericClient fhirClient;
+    // Constructor Injection
+    public LocationService(LocationRepository locationRepository, IGenericClient fhirClient) {
+        this.locationRepository = locationRepository;
+        this.fhirClient = fhirClient;
+    }
 
 
-    // Create Location
+    // CREATE LOCATION
 
     public LocationEntity saveLocation(Location location){
         String id = location.getIdElement().getIdPart();
@@ -56,7 +58,7 @@ public class LocationService {
                         .getResource();
     }
 
-    // Update Location 
+    // UPDATE LOCATION
 
     public Location updateLocation(String id, Location location){
         location.setId(id);

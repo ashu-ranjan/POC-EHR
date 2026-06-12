@@ -1,7 +1,6 @@
 package com.poc.backend.service;
 
 import org.hl7.fhir.r4.model.Practitioner;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -15,11 +14,14 @@ import ca.uhn.fhir.rest.client.api.IGenericClient;
 @Service
 public class PractitionerService {
 
-    @Autowired
-    private PractitionerRepository practitionerRepository;
+    private final PractitionerRepository practitionerRepository;
+    private final IGenericClient fhirClient;
 
-    @Autowired
-    private IGenericClient fhirClient;
+    // Constructor Injection
+    public PractitionerService(PractitionerRepository practitionerRepository, IGenericClient fhirClient) {
+        this.practitionerRepository = practitionerRepository;
+        this.fhirClient = fhirClient;
+    }
 
     // CREATE PRACTITIONER
 

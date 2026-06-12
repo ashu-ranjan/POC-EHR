@@ -46,6 +46,12 @@ public class IdGenerator {
     public static String generateLocIdentifier(String prefix, int minLen, int maxLen){
         return prefix + generate(minLen, maxLen);
     }
+
+    // Identifier Generator
+
+    public static String generateIdentifier(String prefix, int minLen, int maxLen){
+        return prefix + generate(minLen, maxLen);
+    }
     
 }
 

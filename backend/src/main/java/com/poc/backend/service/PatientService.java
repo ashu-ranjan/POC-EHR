@@ -1,7 +1,6 @@
 package com.poc.backend.service;
 
 import org.hl7.fhir.r4.model.Patient;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -13,11 +12,14 @@ import ca.uhn.fhir.rest.client.api.IGenericClient;
 @Service
 public class PatientService {
 
-    @Autowired
-    private PatientRepository patientRepository;
+    private final PatientRepository patientRepository;
+    private final IGenericClient fhirClient;
 
-    @Autowired
-    private IGenericClient fhirClient;
+    // Constructor Injection
+    public PatientService(PatientRepository patientRepository, IGenericClient fhirClient) {
+        this.patientRepository = patientRepository;
+        this.fhirClient = fhirClient;
+    }
 
     // CREATE PATIENT 
 

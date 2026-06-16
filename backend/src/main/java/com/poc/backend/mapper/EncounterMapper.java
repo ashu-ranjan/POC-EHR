@@ -122,7 +122,9 @@ public class EncounterMapper {
     // ID Extractor
     private static String extractId(String reference){
         if(reference == null) return null;
-        return reference.contains("/") ? reference.substring(reference.lastIndexOf("/") + 1) : reference;
+        return reference.contains("/")
+                        ? reference.substring(reference.lastIndexOf("/") + 1) 
+                        : reference;
     }
 
 }

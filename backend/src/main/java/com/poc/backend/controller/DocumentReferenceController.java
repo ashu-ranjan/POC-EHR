@@ -1,22 +1,22 @@
 package com.poc.backend.controller;
 
-import org.hl7.fhir.r4.model.Encounter;
+import org.hl7.fhir.r4.model.DocumentReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.poc.backend.service.EncounterService;
+import com.poc.backend.service.DocumentReferenceService;
 
 import ca.uhn.fhir.context.FhirContext;
 
 @RestController
-@RequestMapping("/Encounter")
-public class EncounterController {
+@RequestMapping("/DocumentReference")
+public class DocumentReferenceController {
 
-    private final EncounterService service;
+    private final DocumentReferenceService service;
     private final FhirContext context = FhirContext.forR4();
 
-    public EncounterController(EncounterService service) {
+    public DocumentReferenceController(DocumentReferenceService service) {
         this.service = service;
     }
 
@@ -25,12 +25,12 @@ public class EncounterController {
     @PostMapping
     public ResponseEntity<String> create(@RequestBody String body) {
 
-        Encounter encounter =
-                (Encounter) context
+        DocumentReference doc =
+                (DocumentReference) context
                         .newJsonParser()
                         .parseResource(body);
 
-        Encounter created = service.create(encounter);
+        DocumentReference created = service.create(doc);
 
         service.save(created);
 
@@ -46,14 +46,14 @@ public class EncounterController {
     public ResponseEntity<String> update(@PathVariable String id,
                                          @RequestBody String body) {
 
-        Encounter encounter =
-                (Encounter) context
+        DocumentReference doc =
+                (DocumentReference) context
                         .newJsonParser()
                         .parseResource(body);
 
-        encounter.setId(id);
+        doc.setId(id);
 
-        Encounter updated = service.update(id, encounter);
+        DocumentReference updated = service.update(id, doc);
 
         service.save(updated);
 

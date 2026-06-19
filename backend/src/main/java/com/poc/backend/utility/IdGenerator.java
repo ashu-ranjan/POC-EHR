@@ -17,36 +17,38 @@ public class IdGenerator {
         return id.toString();
     }
 
-    // Patient Id generator
+    // // Patient Id generator
 
-    public static String generatePatientId(String prefix, int minLen, int maxLen){
-        return prefix + "-" + generate(minLen, maxLen);
-    }
+    // public static String generatePatientId(String prefix, int minLen, int maxLen){
+    //     return prefix + "-" + generate(minLen, maxLen);
+    // }
 
-    // Practitioner Id generator
+    // // Practitioner Id generator
 
-    public static String generateDoctorId(String prefix, int minLen, int maxLen){
-        return prefix + "-" + generate(minLen, maxLen);
-    }
+    // public static String generateDoctorId(String prefix, int minLen, int maxLen){
+    //     return prefix + "-" + generate(minLen, maxLen);
+    // }
 
-    // Practitioner Identifier generator
+    // // Practitioner Identifier generator
 
-    public static String generateDocIdentifier(String prefix, int minLen, int maxLen){
-        return prefix + generate(minLen, maxLen);
-    }
+    // public static String generateDocIdentifier(String prefix, int minLen, int maxLen){
+    //     return prefix + generate(minLen, maxLen);
+    // }
 
-    // Organization Identifier generator
+    // // Organization Identifier generator
 
-    public static String generateOrgIdentifier(String prefix, int minLen, int maxLen){
-        return prefix + generate(minLen, maxLen);
-    }
+    // public static String generateOrgIdentifier(String prefix, int minLen, int maxLen){
+    //     return prefix + generate(minLen, maxLen);
+    // }
 
-    // Location Identifier Generator
+    // // Location Identifier Generator
 
-    public static String generateLocIdentifier(String prefix, int minLen, int maxLen){
-        return prefix + generate(minLen, maxLen);
-    }
+    // public static String generateLocIdentifier(String prefix, int minLen, int maxLen){
+    //     return prefix + generate(minLen, maxLen);
+    // }
 
+
+    
     // Identifier Generator
 
     public static String generateIdentifier(String prefix, int minLen, int maxLen){

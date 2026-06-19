@@ -1,22 +1,22 @@
 package com.poc.backend.controller;
 
-import org.hl7.fhir.r4.model.PractitionerRole;
+import org.hl7.fhir.r4.model.Observation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.poc.backend.service.PractitionerRoleService;
+import com.poc.backend.service.ObservationService;
 
 import ca.uhn.fhir.context.FhirContext;
 
 @RestController
-@RequestMapping("/PractitionerRole")
-public class PractitionerRoleController {
+@RequestMapping("/Observation")
+public class ObservationController {
 
+    private final ObservationService service;
     private final FhirContext context = FhirContext.forR4();
-    private final PractitionerRoleService service;
 
-    public PractitionerRoleController(PractitionerRoleService service){
+    public ObservationController(ObservationService service){
         this.service = service;
     }
 
@@ -25,11 +25,11 @@ public class PractitionerRoleController {
     @PostMapping
     public ResponseEntity<String> create(@RequestBody String body){
 
-        PractitionerRole role = (PractitionerRole) context
-                                        .newJsonParser()
-                                        .parseResource(body);
+        Observation observation = (Observation) context
+                                            .newJsonParser()
+                                            .parseResource(body);
 
-        PractitionerRole created = service.create(role);
+        Observation created = service.create(observation);
 
         service.save(created);
 
@@ -46,19 +46,18 @@ public class PractitionerRoleController {
     public ResponseEntity<String> update(@PathVariable String id,
                                          @RequestBody String body){
 
-        PractitionerRole role = (PractitionerRole) context
-                                        .newJsonParser()
-                                        .parseResource(body);
+        Observation observation = (Observation) context
+                                            .newJsonParser()
+                                            .parseResource(body);
 
-        role.setId(id);
+        observation.setId(id);
 
-        PractitionerRole updated = service.update(id, role);
+        Observation updated = service.update(id, observation);
 
         service.save(updated);
 
         return ResponseEntity.ok(
-                context
-                        .newJsonParser()
+                context.newJsonParser()
                         .setPrettyPrint(true)
                         .encodeResourceToString(updated));
     }

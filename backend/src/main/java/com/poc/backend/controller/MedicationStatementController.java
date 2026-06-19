@@ -1,36 +1,35 @@
 package com.poc.backend.controller;
 
-import org.hl7.fhir.r4.model.Encounter;
+import org.hl7.fhir.r4.model.MedicationStatement;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.poc.backend.service.EncounterService;
+import com.poc.backend.service.MedicationStatementService;
 
 import ca.uhn.fhir.context.FhirContext;
 
 @RestController
-@RequestMapping("/Encounter")
-public class EncounterController {
+@RequestMapping("/MedicationStatement")
+public class MedicationStatementController {
 
-    private final EncounterService service;
+    private final MedicationStatementService service;
     private final FhirContext context = FhirContext.forR4();
 
-    public EncounterController(EncounterService service) {
+    public MedicationStatementController(MedicationStatementService service){
         this.service = service;
     }
 
     // Create API 
 
     @PostMapping
-    public ResponseEntity<String> create(@RequestBody String body) {
+    public ResponseEntity<String> create(@RequestBody String body){
 
-        Encounter encounter =
-                (Encounter) context
-                        .newJsonParser()
-                        .parseResource(body);
+        MedicationStatement ms = (MedicationStatement) context
+                                    .newJsonParser()
+                                    .parseResource(body);
 
-        Encounter created = service.create(encounter);
+        MedicationStatement created = service.create(ms);
 
         service.save(created);
 
@@ -44,16 +43,15 @@ public class EncounterController {
 
     @PutMapping("/{id}")
     public ResponseEntity<String> update(@PathVariable String id,
-                                         @RequestBody String body) {
+                                         @RequestBody String body){
 
-        Encounter encounter =
-                (Encounter) context
-                        .newJsonParser()
-                        .parseResource(body);
+        MedicationStatement ms = (MedicationStatement) context
+                                    .newJsonParser()
+                                    .parseResource(body);
 
-        encounter.setId(id);
+        ms.setId(id);
 
-        Encounter updated = service.update(id, encounter);
+        MedicationStatement updated = service.update(id, ms);
 
         service.save(updated);
 

@@ -1,10 +1,14 @@
 package com.poc.backend.service;
 
 import org.hl7.fhir.r4.model.Encounter;
+import org.hl7.fhir.r4.model.Identifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.poc.backend.entity.EncounterEntity;
+import com.poc.backend.exception.BadRequestException;
+import com.poc.backend.exception.DatabaseException;
+import com.poc.backend.exception.FHIRClientException;
 import com.poc.backend.mapper.EncounterMapper;
 import com.poc.backend.repository.EncounterRepository;
 import com.poc.backend.utility.IdGenerator;
@@ -14,55 +18,96 @@ import ca.uhn.fhir.rest.client.api.IGenericClient;
 @Service
 public class EncounterService {
 
-    private final EncounterRepository encounterRepository;
+    private final EncounterRepository repository;
     private final IGenericClient fhirClient;
 
-    // Constructor Injection
-    public EncounterService(EncounterRepository encounterRepository, IGenericClient fhirClient){
-        this.encounterRepository = encounterRepository;
+    public EncounterService(EncounterRepository repository,
+                            IGenericClient fhirClient) {
+        this.repository = repository;
         this.fhirClient = fhirClient;
     }
 
     // CREATE ENCOUNTER
-    public EncounterEntity saveEncounter(Encounter encounter){
 
-        String id = encounter.getIdElement().getIdPart();
+    // Create Encounter to FHIR
+    public Encounter create(Encounter encounter) {
 
-        if(encounter.getIdentifier().isEmpty()){
-            String indentifierValue = IdGenerator.generateIdentifier("ENC-", 5, 5);
-            encounter.addIdentifier()
-                        .setValue(indentifierValue);
+        // validation
+        if (!encounter.hasSubject()) {
+            throw new BadRequestException("Patient reference is required.");
         }
-        String baseUrl = ServletUriComponentsBuilder
-                .fromCurrentContextPath()
-                .path("/Encounter/")
-                .toUriString();
-        String fullUrl = baseUrl + id;
 
-        EncounterEntity entity = EncounterMapper.toEntity(encounter, fullUrl, "match");
+        // identifier generation
+        if (encounter.getIdentifier().isEmpty()) {
+            Identifier id = new Identifier();
+            id.setValue(IdGenerator.generateIdentifier("ENC-", 5, 5));
+            encounter.addIdentifier(id);
+        }
 
-        return encounterRepository.save(entity);
+        // core creation
+        try {
+            return (Encounter) fhirClient
+                    .create()
+                    .resource(encounter)
+                    .execute()
+                    .getResource();
 
+        } catch (Exception e) {
+            throw new FHIRClientException("Failed to create Encounter.");
+        }
     }
 
-    public Encounter createEncounter(Encounter encounter){
+    // Save Encounter to DB
+    public EncounterEntity save(Encounter encounter) {
 
-        return (Encounter) fhirClient
-                        .create()
-                        .resource(encounter)
-                        .execute()
-                        .getResource();
+        try {
+            String id = encounter.getIdElement().getIdPart();
 
+            String fullUrl = ServletUriComponentsBuilder
+                    .fromCurrentContextPath()
+                    .path("/Encounter/")
+                    .toUriString() + id;
+
+            return repository.save(
+                    EncounterMapper.toEntity(encounter, fullUrl, "match"));
+
+        } catch (Exception e) {
+            throw new DatabaseException("Failed to save Encounter.");
+        }
     }
 
     // UPDATE ENCOUNTER
+    
+    public Encounter update(String id, Encounter encounter) {
 
-    public Encounter updateEncounter(String id, Encounter encounter){
-        encounter.setId(id);
-        return (Encounter) fhirClient
-                        .update()
-                        .resource(encounter)
-                        .execute()
-                        .getResource();
+        // validation
+        if (id == null || id.isEmpty()) {
+            throw new BadRequestException("ID is required for update.");
+        }
+
+        // core updation
+        try {
+
+            Encounter existing =
+                    (Encounter) fhirClient
+                            .read()
+                            .resource(Encounter.class)
+                            .withId(id)
+                            .execute();
+
+            // ALWAYS preserve identifier
+            encounter.setIdentifier(existing.getIdentifier());
+
+            encounter.setId(id);
+
+            return (Encounter) fhirClient
+                    .update()
+                    .resource(encounter)
+                    .execute()
+                    .getResource();
+
+        } catch (Exception e) {
+            throw new FHIRClientException("Failed to update Encounter.");
+        }
     }
 }

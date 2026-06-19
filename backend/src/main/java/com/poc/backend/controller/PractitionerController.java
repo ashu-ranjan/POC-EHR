@@ -1,66 +1,65 @@
 package com.poc.backend.controller;
 
 import org.hl7.fhir.r4.model.Practitioner;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import com.poc.backend.service.PractitionerService;
 
 import ca.uhn.fhir.context.FhirContext;
 
 @RestController
+@RequestMapping("/Practitioner")
 public class PractitionerController {
 
     private final FhirContext context = FhirContext.forR4();
+    private final PractitionerService service;
 
-    private PractitionerService practitionerService;
-    
-    public PractitionerController(PractitionerService practitionerService){
-        this.practitionerService = practitionerService;
+    public PractitionerController(PractitionerService service){
+        this.service = service;
     }
 
     // Create API 
 
-    @PostMapping("/Practitioner")
-    public String create(@RequestBody String body){
+    @PostMapping
+    public ResponseEntity<String> create(@RequestBody String body){
+
         Practitioner practitioner = (Practitioner) context
                                         .newJsonParser()
                                         .parseResource(body);
 
-        // Create in FHIR
-        Practitioner created = practitionerService.createPractitioner(practitioner);
+        Practitioner created = service.create(practitioner);
 
-        // Save create in DB
-        practitionerService.savePractitioner(created);
+        service.save(created);
 
-        return context
-                .newJsonParser()
-                .setPrettyPrint(true)
-                .encodeResourceToString(created);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(context
+                        .newJsonParser()
+                        .setPrettyPrint(true)
+                        .encodeResourceToString(created));
     }
 
     // Update API
 
-    @PutMapping("/Practitioner/{id}")
-    public String update(@PathVariable String id, @RequestBody String body){
+    @PutMapping("/{id}")
+    public ResponseEntity<String> update(@PathVariable String id,
+                                         @RequestBody String body){
+
         Practitioner practitioner = (Practitioner) context
                                         .newJsonParser()
                                         .parseResource(body);
 
-        // Update in FHIR
-        Practitioner updated = practitionerService.updatePractitioner(id, practitioner);
+        practitioner.setId(id);
 
-        // Save update in DB
-        practitionerService.savePractitioner(updated);
+        Practitioner updated = service.update(id, practitioner);
 
-        return context
-                .newJsonParser()
-                .setPrettyPrint(true)
-                .encodeResourceToString(updated);
+        service.save(updated);
+
+        return ResponseEntity.ok(
+                context
+                        .newJsonParser()
+                        .setPrettyPrint(true)
+                        .encodeResourceToString(updated));
     }
-
-
 }

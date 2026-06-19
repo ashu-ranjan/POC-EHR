@@ -1,10 +1,14 @@
 package com.poc.backend.service;
 
+import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.Organization;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.poc.backend.entity.OrganizationEntity;
+import com.poc.backend.exception.BadRequestException;
+import com.poc.backend.exception.DatabaseException;
+import com.poc.backend.exception.FHIRClientException;
 import com.poc.backend.mapper.OrganizationMapper;
 import com.poc.backend.repository.OrganizationRepository;
 import com.poc.backend.utility.IdGenerator;
@@ -14,64 +18,100 @@ import ca.uhn.fhir.rest.client.api.IGenericClient;
 @Service
 public class OrganizationService {
 
-    private final OrganizationRepository organizationRepository;
+    private final OrganizationRepository repository;
     private final IGenericClient fhirClient;
 
-    // Constructor Injection
-    public OrganizationService(OrganizationRepository organizationRepository, IGenericClient fhirClient) {
-        this.organizationRepository = organizationRepository;
+    public OrganizationService(OrganizationRepository repository,
+                               IGenericClient fhirClient) {
+        this.repository = repository;
         this.fhirClient = fhirClient;
     }
 
     // CREATE ORGANIZATION
 
-    public OrganizationEntity saveOrganization(Organization organization){
-        
-        String id = organization.getIdElement().getIdPart();
+    // Create Organization to FHIR
+    public Organization create(Organization organization){
 
-        if(organization.getIdentifier().isEmpty()){
-
-            String identifierValue = IdGenerator.generateOrgIdentifier("ORG-", 4, 6);
-
-            organization.addIdentifier()
-                        .setSystem("http://hospital-system/organization")
-                        .setValue(identifierValue);
+        // validation
+        if (!organization.hasName()) {
+            throw new BadRequestException("Organization name is required.");
         }
 
-        String baseUrl = ServletUriComponentsBuilder
-                .fromCurrentContextPath()
-                .path("/Organization/")
-                .toUriString();
-        String fullUrl = baseUrl + id;
+        // identifier generation
+        if(organization.getIdentifier().isEmpty()){
+            Identifier identifier = new Identifier();
+            identifier.setSystem("http://hospital-system/organization");
+            identifier.setValue(
+                    IdGenerator.generateIdentifier("ORG-", 4, 6)
+            );
 
-        OrganizationEntity entity = OrganizationMapper.toEntity(organization, fullUrl, "match");
+            organization.addIdentifier(identifier);
+        }
 
-        return organizationRepository.save(entity);
-
-    }
-
-    public Organization createOrganization(Organization organization){
-
-        // organization.setIdElement(null); When needed active this
-
-        return (Organization) fhirClient
+        // core creation
+        try {
+            return (Organization) fhirClient
                     .create()
                     .resource(organization)
                     .execute()
                     .getResource();
+
+        } catch (Exception e) {
+            throw new FHIRClientException("Failed to create Organization.");
+        }
+    }
+
+    // Save Organization to DB
+    public OrganizationEntity save(Organization organization){
+
+        try {
+            String id = organization.getIdElement().getIdPart();
+
+            String fullUrl = ServletUriComponentsBuilder
+                    .fromCurrentContextPath()
+                    .path("/Organization/")
+                    .toUriString() + id;
+
+            return repository.save(
+                    OrganizationMapper.toEntity(organization, fullUrl, "match"));
+
+        } catch (Exception e) {
+            throw new DatabaseException("Failed to save Organization.");
+        }
     }
 
     // UPDATE ORGANIZATION
+    
+    public Organization update(String id, Organization organization){
 
-    public Organization updateOrganization(String id, Organization organization){
+        // validation
+        if(id == null || id.isEmpty()){
+            throw new BadRequestException("ID is required for update.");
+        }
 
-        organization.setId(id);
+        // core updation
+        try {
 
-        return (Organization) fhirClient
+            Organization existing =
+                    (Organization) fhirClient
+                            .read()
+                            .resource(Organization.class)
+                            .withId(id)
+                            .execute();
+
+            // ALWAYS preserve identifier (including system)
+            organization.setIdentifier(existing.getIdentifier());
+
+            organization.setId(id);
+
+            return (Organization) fhirClient
                     .update()
                     .resource(organization)
                     .execute()
                     .getResource();
-    }
 
+        } catch (Exception e) {
+            throw new FHIRClientException("Failed to update Organization.");
+        }
+    }
 }

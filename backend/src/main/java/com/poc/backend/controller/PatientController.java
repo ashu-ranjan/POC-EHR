@@ -1,66 +1,63 @@
 package com.poc.backend.controller;
 
 import org.hl7.fhir.r4.model.Patient;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import com.poc.backend.service.PatientService;
 
 import ca.uhn.fhir.context.FhirContext;
 
 @RestController
+@RequestMapping("/Patient")
 public class PatientController {
 
-    private final PatientService patientService;
+    private final PatientService service;
+    private final FhirContext context = FhirContext.forR4();
 
-    public PatientController(PatientService patientService){
-        this.patientService = patientService;
+    public PatientController(PatientService service){
+        this.service = service;
     }
 
-    // Create API
+    // Create API 
 
-    @PostMapping("/Patient")
-    public String create(@RequestBody String body){
+    @PostMapping
+    public ResponseEntity<String> create(@RequestBody String body){
 
-        
-        Patient patient = (Patient) FhirContext.forR4()
+        Patient patient = (Patient) context
                     .newJsonParser()
                     .parseResource(body);
 
+        Patient created = service.create(patient);
 
-        // Create in FHIR
-        Patient created = patientService.createPatient(patient);
+        service.save(created);
 
-        // Save create in DB
-        patientService.savePatient(created);
-
-        return FhirContext.forR4()
-                            .newJsonParser()
-                            .setPrettyPrint(true)
-                            .encodeResourceToString(created);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(context.newJsonParser()
+                        .setPrettyPrint(true)
+                        .encodeResourceToString(created));
     }
 
     // Update API
 
-    @PutMapping("/Patient/{id}")
-    public String update(@PathVariable String id, @RequestBody String body){
-        Patient patient = (Patient) FhirContext.forR4()
+    @PutMapping("/{id}")
+    public ResponseEntity<String> update(@PathVariable String id,
+                                         @RequestBody String body){
+
+        Patient patient = (Patient) context
                             .newJsonParser()
                             .parseResource(body);
 
-        // Update in FHIR
-        Patient updated = patientService.updatePatient(id, patient);
+        patient.setId(id);
 
-        // Save update in DB
-        patientService.savePatient(updated);
+        Patient updated = service.update(id, patient);
 
-        return FhirContext.forR4()
-                        .newJsonParser()
+        service.save(updated);
+
+        return ResponseEntity.ok(
+                context.newJsonParser()
                         .setPrettyPrint(true)
-                        .encodeResourceToString(updated);
+                        .encodeResourceToString(updated));
     }
-
 }

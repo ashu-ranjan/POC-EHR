@@ -1,22 +1,22 @@
 package com.poc.backend.controller;
 
-import org.hl7.fhir.r4.model.Encounter;
+import org.hl7.fhir.r4.model.Procedure;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.poc.backend.service.EncounterService;
+import com.poc.backend.service.ProcedureService;
 
 import ca.uhn.fhir.context.FhirContext;
 
 @RestController
-@RequestMapping("/Encounter")
-public class EncounterController {
+@RequestMapping("/Procedure")
+public class ProcedureController {
 
-    private final EncounterService service;
+    private final ProcedureService service;
     private final FhirContext context = FhirContext.forR4();
 
-    public EncounterController(EncounterService service) {
+    public ProcedureController(ProcedureService service) {
         this.service = service;
     }
 
@@ -25,12 +25,11 @@ public class EncounterController {
     @PostMapping
     public ResponseEntity<String> create(@RequestBody String body) {
 
-        Encounter encounter =
-                (Encounter) context
-                        .newJsonParser()
-                        .parseResource(body);
+        Procedure procedure = (Procedure) context
+                .newJsonParser()
+                .parseResource(body);
 
-        Encounter created = service.create(encounter);
+        Procedure created = service.create(procedure);
 
         service.save(created);
 
@@ -46,14 +45,13 @@ public class EncounterController {
     public ResponseEntity<String> update(@PathVariable String id,
                                          @RequestBody String body) {
 
-        Encounter encounter =
-                (Encounter) context
-                        .newJsonParser()
-                        .parseResource(body);
+        Procedure procedure = (Procedure) context
+                .newJsonParser()
+                .parseResource(body);
 
-        encounter.setId(id);
+        procedure.setId(id);
 
-        Encounter updated = service.update(id, encounter);
+        Procedure updated = service.update(id, procedure);
 
         service.save(updated);
 

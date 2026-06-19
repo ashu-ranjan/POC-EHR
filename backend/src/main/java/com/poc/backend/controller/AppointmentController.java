@@ -1,22 +1,22 @@
 package com.poc.backend.controller;
 
-import org.hl7.fhir.r4.model.Encounter;
+import org.hl7.fhir.r4.model.Appointment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.poc.backend.service.EncounterService;
+import com.poc.backend.service.AppointmentService;
 
 import ca.uhn.fhir.context.FhirContext;
 
 @RestController
-@RequestMapping("/Encounter")
-public class EncounterController {
+@RequestMapping("/Appointment")
+public class AppointmentController {
 
-    private final EncounterService service;
+    private final AppointmentService service;
     private final FhirContext context = FhirContext.forR4();
 
-    public EncounterController(EncounterService service) {
+    public AppointmentController(AppointmentService service) {
         this.service = service;
     }
 
@@ -25,12 +25,12 @@ public class EncounterController {
     @PostMapping
     public ResponseEntity<String> create(@RequestBody String body) {
 
-        Encounter encounter =
-                (Encounter) context
+        Appointment appt =
+                (Appointment) context
                         .newJsonParser()
                         .parseResource(body);
 
-        Encounter created = service.create(encounter);
+        Appointment created = service.create(appt);
 
         service.save(created);
 
@@ -46,14 +46,14 @@ public class EncounterController {
     public ResponseEntity<String> update(@PathVariable String id,
                                          @RequestBody String body) {
 
-        Encounter encounter =
-                (Encounter) context
+        Appointment appt =
+                (Appointment) context
                         .newJsonParser()
                         .parseResource(body);
+    
+    appt.setId(id);
 
-        encounter.setId(id);
-
-        Encounter updated = service.update(id, encounter);
+        Appointment updated = service.update(id, appt);
 
         service.save(updated);
 

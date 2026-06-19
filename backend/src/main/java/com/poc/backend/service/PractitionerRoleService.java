@@ -1,10 +1,12 @@
 package com.poc.backend.service;
-
 import org.hl7.fhir.r4.model.PractitionerRole;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.poc.backend.entity.PractitionerRoleEntity;
+import com.poc.backend.exception.BadRequestException;
+import com.poc.backend.exception.DatabaseException;
+import com.poc.backend.exception.FHIRClientException;
 import com.poc.backend.mapper.PractitionerRoleMapper;
 import com.poc.backend.repository.PractitionerRoleRepository;
 
@@ -13,55 +15,81 @@ import ca.uhn.fhir.rest.client.api.IGenericClient;
 @Service
 public class PractitionerRoleService {
 
-    private final PractitionerRoleRepository practitionerRoleRepository;
+    private final PractitionerRoleRepository repository;
     private final IGenericClient fhirClient;
 
-    // Constructor Injection
-    public PractitionerRoleService(PractitionerRoleRepository practitionerRoleRepository, IGenericClient fhirClient) {
-        this.practitionerRoleRepository = practitionerRoleRepository;
+    public PractitionerRoleService(PractitionerRoleRepository repository,
+                                   IGenericClient fhirClient) {
+        this.repository = repository;
         this.fhirClient = fhirClient;
     }
 
     // CREATE PRACTITIONER ROLE
 
-    // Saving created practitioner role in DB 
-    public PractitionerRoleEntity savePractitionerRole(PractitionerRole role){
-        
-        String id = role.getIdElement().getIdPart();
+    // Create PractitionerRole to FHIR
+    public PractitionerRole create(PractitionerRole role){
 
-        String baseUrl = ServletUriComponentsBuilder
-                            .fromCurrentContextPath()
-                            .path("/PractitionerRole/")
-                            .toUriString();
+        // validation
+        if(!role.hasPractitioner() || !role.hasOrganization()){
+            throw new BadRequestException("Practitioner and Organization references are required.");
+        }
 
-        String fullUrl = baseUrl + id;
-
-        PractitionerRoleEntity entity = PractitionerRoleMapper.toEntity(role, fullUrl, "match");
-
-        return practitionerRoleRepository.save(entity);
-    }
-
-    // Created practitioner role in FHIR
-    public PractitionerRole creatPractitionerRole(PractitionerRole role){
-        return (PractitionerRole) fhirClient
+        // core creation
+        try {
+            return (PractitionerRole) fhirClient
                     .create()
                     .resource(role)
                     .execute()
                     .getResource();
+
+        } catch (Exception e) {
+            throw new FHIRClientException("Failed to create PractitionerRole.");
+        }
+    }
+
+    // Save PractitionerRole to DB
+    public PractitionerRoleEntity save(PractitionerRole role){
+
+        try {
+            String id = role.getIdElement().getIdPart();
+
+            String fullUrl = ServletUriComponentsBuilder
+                    .fromCurrentContextPath()
+                    .path("/PractitionerRole/")
+                    .toUriString() + id;
+
+            return repository.save(
+                    PractitionerRoleMapper.toEntity(role, fullUrl, "match"));
+
+        } catch (Exception e) {
+            throw new DatabaseException("Failed to save PractitionerRole.");
+        }
     }
 
     // UPDATE PRACTITIONER ROLE
 
-    public PractitionerRole updatePractitionerRole(String id, PractitionerRole role){
+    public PractitionerRole update(String id, PractitionerRole role){
 
-        role.setId(id);
+        // validation
+        if(id == null || id.isEmpty()){
+            throw new BadRequestException("ID is required for update.");
+        }
 
-        return (PractitionerRole) fhirClient
+        // core updation
+        try {
+
+            role.setId(id);
+
+            return (PractitionerRole) fhirClient
                     .update()
                     .resource(role)
                     .execute()
                     .getResource();
 
+        } catch (Exception e) {
+            throw new FHIRClientException("Failed to update PractitionerRole.");
+        }
     }
-
 }
+
+

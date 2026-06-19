@@ -1,22 +1,22 @@
 package com.poc.backend.controller;
 
-import org.hl7.fhir.r4.model.Encounter;
+import org.hl7.fhir.r4.model.DiagnosticReport;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.poc.backend.service.EncounterService;
+import com.poc.backend.service.DiagnosticReportService;
 
 import ca.uhn.fhir.context.FhirContext;
 
 @RestController
-@RequestMapping("/Encounter")
-public class EncounterController {
+@RequestMapping("/DiagnosticReport")
+public class DiagnosticReportController {
 
-    private final EncounterService service;
+    private final DiagnosticReportService service;
     private final FhirContext context = FhirContext.forR4();
 
-    public EncounterController(EncounterService service) {
+    public DiagnosticReportController(DiagnosticReportService service) {
         this.service = service;
     }
 
@@ -25,12 +25,12 @@ public class EncounterController {
     @PostMapping
     public ResponseEntity<String> create(@RequestBody String body) {
 
-        Encounter encounter =
-                (Encounter) context
+        DiagnosticReport diagnosticReport =
+                (DiagnosticReport) context
                         .newJsonParser()
                         .parseResource(body);
 
-        Encounter created = service.create(encounter);
+        DiagnosticReport created = service.create(diagnosticReport);
 
         service.save(created);
 
@@ -46,14 +46,14 @@ public class EncounterController {
     public ResponseEntity<String> update(@PathVariable String id,
                                          @RequestBody String body) {
 
-        Encounter encounter =
-                (Encounter) context
+        DiagnosticReport diagnosticReport =
+                (DiagnosticReport) context
                         .newJsonParser()
                         .parseResource(body);
 
-        encounter.setId(id);
+        diagnosticReport.setId(id);
 
-        Encounter updated = service.update(id, encounter);
+        DiagnosticReport updated = service.update(id, diagnosticReport);
 
         service.save(updated);
 

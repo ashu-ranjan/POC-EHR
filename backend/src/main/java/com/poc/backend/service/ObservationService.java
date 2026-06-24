@@ -68,8 +68,14 @@ public class ObservationService {
                     .path("/Observation/")
                     .toUriString() + id;
 
-            return repository.save(
-                    ObservationMapper.toEntity(observation, fullUrl, "match"));
+
+            ObservationEntity entity = ObservationMapper.toEntity(observation, fullUrl, "match");
+            
+            if (entity.getIdentifier() == null) {
+                repository.findById(id)
+                        .ifPresent(existing -> entity.setIdentifier(existing.getIdentifier()));
+            }
+            return repository.save(entity);
 
         } catch (Exception e) {
             throw new DatabaseException("Failed to save Observation.");

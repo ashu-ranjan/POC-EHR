@@ -68,8 +68,15 @@ public class EncounterService {
                     .path("/Encounter/")
                     .toUriString() + id;
 
-            return repository.save(
-                    EncounterMapper.toEntity(encounter, fullUrl, "match"));
+            EncounterEntity entity = EncounterMapper.toEntity(encounter, fullUrl, "match");
+
+            
+            if (entity.getIdentifier() == null) {
+                repository.findById(id)
+                        .ifPresent(existing -> entity.setIdentifier(existing.getIdentifier()));
+            }
+
+            return repository.save(entity);
 
         } catch (Exception e) {
             throw new DatabaseException("Failed to save Encounter.");

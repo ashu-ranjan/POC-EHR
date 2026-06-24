@@ -72,8 +72,13 @@ public class OrganizationService {
                     .path("/Organization/")
                     .toUriString() + id;
 
-            return repository.save(
-                    OrganizationMapper.toEntity(organization, fullUrl, "match"));
+            OrganizationEntity entity = OrganizationMapper.toEntity(organization, fullUrl, "match");
+            
+            if (entity.getIdentifier() == null) {
+                repository.findById(id)
+                        .ifPresent(existing -> entity.setIdentifier(existing.getIdentifier()));
+            }
+            return repository.save(entity);
 
         } catch (Exception e) {
             throw new DatabaseException("Failed to save Organization.");

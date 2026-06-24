@@ -36,6 +36,10 @@ public class PatientEntity {
     @Column(name = "gender")
     private String gender;
 
+    // Identifier
+    @Column(columnDefinition = "TEXT")
+    private String identifier;
+
     // DOB
     @Column(name = "birth_date")
     private LocalDate birthDate;
@@ -43,6 +47,9 @@ public class PatientEntity {
     // Meta
     @Column(name = "last_updated")
     private OffsetDateTime lastUpdated;
+
+    @Column(name = "version_id")
+    private String versionId;
 
     private String source;
 

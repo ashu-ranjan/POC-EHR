@@ -72,11 +72,22 @@ public class ObservationMapper {
 
         // Interpretation
         if(!observation.getInterpretation().isEmpty()){
+
             String interpretation = observation.getInterpretation()
-                                                .stream()
-                                                .flatMap(i -> i.getCoding().stream())
-                                                .map(Coding::getDisplay)
-                                                .collect(Collectors.joining(","));
+                .stream()
+                .map(i -> {
+                    if(i.hasText()){
+                        return i.getText();          
+                    } else if(!i.getCoding().isEmpty()){
+                        Coding coding = i.getCodingFirstRep();
+                        return coding.hasDisplay() 
+                                ? coding.getDisplay()
+                                : coding.getCode();
+                    }
+                    return null;
+                })
+                .filter(v -> v != null)
+                .collect(Collectors.joining(","));
 
             entity.setInterpretation(interpretation);
         }
@@ -118,7 +129,7 @@ public class ObservationMapper {
         }
 
         // Practitioner (performer)
-        if(observation.getPerformer().isEmpty() && observation.getPerformerFirstRep().hasReference()){
+        if(!observation.getPerformer().isEmpty() && observation.getPerformerFirstRep().hasReference()){
             String id = extractId(observation.getPerformerFirstRep().getReference());
 
             PractitionerEntity practitioner = new PractitionerEntity();

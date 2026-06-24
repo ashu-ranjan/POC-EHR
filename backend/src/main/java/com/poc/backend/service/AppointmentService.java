@@ -68,8 +68,12 @@ public class AppointmentService {
                     .path("/Appointment/")
                     .toUriString() + id;
 
-            return repository.save(
-                    AppointmentMapper.toEntity(appt, fullUrl, "match"));
+            AppointmentEntity entity = AppointmentMapper.toEntity(appt, fullUrl, "match");
+            if (entity.getIdentifier() == null) {
+                repository.findById(id)
+                        .ifPresent(existing -> entity.setIdentifier(existing.getIdentifier()));
+            }
+            return repository.save(entity);
 
         } catch (Exception e) {
             throw new DatabaseException("Failed to save Appointment.");

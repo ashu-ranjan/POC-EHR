@@ -74,8 +74,13 @@ public class ProcedureService {
                     .path("/Procedure/")
                     .toUriString() + id;
 
-            return repository.save(
-                    ProcedureMapper.toEntity(procedure, fullUrl, "match"));
+            ProcedureEntity entity = ProcedureMapper.toEntity(procedure, fullUrl, "match");
+            
+            if (entity.getIdentifier() == null) {
+                repository.findById(id)
+                        .ifPresent(existing -> entity.setIdentifier(existing.getIdentifier()));
+            }
+            return repository.save(entity);
 
         } catch (Exception e) {
             throw new DatabaseException("Failed to save Procedure.");

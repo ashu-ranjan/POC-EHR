@@ -92,6 +92,10 @@ public class DiagnosticReportService {
 
                 entity.setObservations(observations);
             }
+            if (entity.getIdentifier() == null) {
+                repository.findById(id)
+                        .ifPresent(existing -> entity.setIdentifier(existing.getIdentifier()));
+            }
 
             return repository.save(entity);
 

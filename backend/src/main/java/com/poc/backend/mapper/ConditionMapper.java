@@ -23,10 +23,19 @@ public class ConditionMapper {
         // Id
         entity.setId(condition.getIdElement().getIdPart());
 
-        // Clinical status
-        if(condition.hasClinicalStatus() && !condition.getClinicalStatus().getCoding().isEmpty()){
-            entity.setClinicalStatus(condition.getClinicalStatus().getCodingFirstRep().getCode());
+        // Clinical Status
+        if (condition.hasClinicalStatus()) {
+            if (!condition.getClinicalStatus().getCoding().isEmpty()) {
+                entity.setClinicalStatus(
+                    condition.getClinicalStatus().getCodingFirstRep().getCode()
+                );
+            } else if (condition.getClinicalStatus().hasText()) {
+                entity.setClinicalStatus(
+                    condition.getClinicalStatus().getText()
+                );
+            }
         }
+
 
         // Identifier
         if(!condition.getIdentifier().isEmpty()){
@@ -34,8 +43,16 @@ public class ConditionMapper {
         }
 
         // Verification Status
-        if(condition.hasVerificationStatus() && !condition.getVerificationStatus().getCoding().isEmpty()){
-            entity.setVerificationStatus(condition.getVerificationStatus().getCodingFirstRep().getCode());
+        if (condition.hasVerificationStatus()) {
+            if (!condition.getVerificationStatus().getCoding().isEmpty()) {
+                entity.setVerificationStatus(
+                    condition.getVerificationStatus().getCodingFirstRep().getCode()
+                );
+            } else if (condition.getVerificationStatus().hasText()) {
+                entity.setVerificationStatus(
+                    condition.getVerificationStatus().getText()
+                );
+            }
         }
 
         // Code (Diagnosis)
@@ -47,9 +64,13 @@ public class ConditionMapper {
             }
         }
 
-        // Severity
-        if(condition.hasSeverity() && !condition.getSeverity().getCoding().isEmpty()){
-            entity.setSeverity(condition.getSeverity().getCodingFirstRep().getDisplay());
+        // severity
+        if(condition.hasSeverity()){
+            if(!condition.getSeverity().getCoding().isEmpty()){
+                entity.setSeverity(condition.getSeverity().getCodingFirstRep().getDisplay());
+            } else if(condition.getSeverity().hasText()){
+                entity.setSeverity(condition.getSeverity().getText());
+            }
         }
 
         // Category

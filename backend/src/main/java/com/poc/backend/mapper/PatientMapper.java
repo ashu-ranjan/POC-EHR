@@ -1,5 +1,7 @@
 package com.poc.backend.mapper;
 
+import java.time.ZoneOffset;
+
 import org.hl7.fhir.r4.model.Patient;
 
 import com.poc.backend.entity.PatientEntity;
@@ -23,6 +25,11 @@ public class PatientMapper {
             entity.setLastName(patient.getNameFirstRep().getFamily());
         }
 
+        // Identifier
+        if(!patient.getIdentifier().isEmpty()){
+            entity.setIdentifier(patient.getIdentifierFirstRep().getValue());
+        }
+
         // Gender
         entity.setGender(patient.getGender() != null ? patient.getGender().toString() : null);
 
@@ -35,8 +42,13 @@ public class PatientMapper {
                                                             
         // Meta
         if(patient.getMeta() != null){
-            entity.setLastUpdated(patient.getMeta().getLastUpdated().toInstant().atOffset(java.time.ZoneOffset.UTC));
-            entity.setSource(patient.getMeta().getSource());
+            entity.setVersionId(patient.getMeta().getVersionId());
+            if(patient.getMeta().getLastUpdated() != null){
+            entity.setLastUpdated(patient.getMeta()
+                                    .getLastUpdated()
+                                    .toInstant()
+                                    .atOffset(ZoneOffset.UTC));                  
+            }
         }
 
         entity.setFullUrl(fullUrl);

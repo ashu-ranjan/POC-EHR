@@ -71,8 +71,13 @@ public class DocumentReferenceService {
                     .path("/DocumentReference/")
                     .toUriString() + id;
 
-            return repository.save(
-                    DocumentReferenceMapper.toEntity(doc, fullUrl, "match"));
+            DocumentReferenceEntity entity = DocumentReferenceMapper.toEntity(doc, fullUrl, "match");
+            
+            if (entity.getIdentifier() == null) {
+                repository.findById(id)
+                        .ifPresent(existing -> entity.setIdentifier(existing.getIdentifier()));
+            }
+            return repository.save(entity);
 
         } catch (Exception e) {
             throw new DatabaseException("Failed to save DocumentReference.");

@@ -68,8 +68,14 @@ public class LocationService {
                     .path("/Location/")
                     .toUriString() + id;
 
-            return repository.save(
-                    LocationMapper.toEntity(location, fullUrl, "match"));
+            LocationEntity entity = LocationMapper.toEntity(location, fullUrl, "match");
+
+            if (entity.getIdentifier() == null) {
+                repository.findById(id)
+                        .ifPresent(existing -> entity.setIdentifier(existing.getIdentifier()));
+            }
+
+            return repository.save(entity);
 
         } catch (Exception e) {
             throw new DatabaseException("Failed to save Location.");

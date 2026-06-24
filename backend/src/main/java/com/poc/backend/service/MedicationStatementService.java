@@ -68,8 +68,13 @@ public class MedicationStatementService {
                     .path("/MedicationStatement/")
                     .toUriString() + id;
 
-            return repository.save(
-                    MedicationStatementMapper.toEntity(ms, fullUrl, "match"));
+            MedicationStatementEntity entity = MedicationStatementMapper.toEntity(ms, fullUrl, "match");
+            
+            if (entity.getIdentifier() == null) {
+                repository.findById(id)
+                        .ifPresent(existing -> entity.setIdentifier(existing.getIdentifier()));
+            }
+            return repository.save(entity);
 
         } catch (Exception e) {
             throw new DatabaseException("Failed to save MedicationStatement.");

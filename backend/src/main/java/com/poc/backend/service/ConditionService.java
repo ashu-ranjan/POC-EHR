@@ -66,8 +66,13 @@ public class ConditionService {
                     .path("/Condition/")
                     .toUriString() + id;
 
-            return repository.save(
-                    ConditionMapper.toEntity(condition, fullUrl, "match"));
+            ConditionEntity entity = ConditionMapper.toEntity(condition, fullUrl, "match");
+            
+            if (entity.getIdentifier() == null) {
+                repository.findById(id)
+                        .ifPresent(existing -> entity.setIdentifier(existing.getIdentifier()));
+            }
+            return repository.save(entity);
 
         } catch (Exception e) {
             throw new DatabaseException("Failed to save Condition.");

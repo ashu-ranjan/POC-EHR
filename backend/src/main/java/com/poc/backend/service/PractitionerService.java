@@ -72,8 +72,13 @@ public class PractitionerService {
                     .path("/Practitioner/")
                     .toUriString() + id;
 
-            return repository.save(
-                    PractitionerMapper.toEntity(practitioner, fullUrl, "match"));
+            PractitionerEntity entity = PractitionerMapper.toEntity(practitioner, fullUrl, "match");
+            
+            if (entity.getIdentifier() == null) {
+                repository.findById(id)
+                        .ifPresent(existing -> entity.setIdentifier(existing.getIdentifier()));
+            }
+            return repository.save(entity);
 
         } catch (Exception e) {
             throw new DatabaseException("Failed to save Practitioner.");

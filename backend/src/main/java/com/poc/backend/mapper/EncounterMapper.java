@@ -16,7 +16,7 @@ public class EncounterMapper {
 
     private static final FhirContext context = FhirContext.forR4();
 
-    public static EncounterEntity toEntity(Encounter encounter, String fullUrl, String serachMode){
+    public static EncounterEntity toEntity(Encounter encounter, String fullUrl, String searchMode){
         EncounterEntity entity = new EncounterEntity();
 
         // Id
@@ -111,7 +111,7 @@ public class EncounterMapper {
         }
 
         entity.setFullUrl(fullUrl);
-        entity.setSearchMode(serachMode);
+        entity.setSearchMode(searchMode);
 
         // Resource Json 
         entity.setResourceJson(context.newJsonParser().encodeResourceToString(encounter));

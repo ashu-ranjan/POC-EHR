@@ -67,9 +67,14 @@ public class PatientService {
                     .fromCurrentContextPath()
                     .path("/Patient/")
                     .toUriString() + id;
-
-            return repository.save(
-                    PatientMapper.patientEntity(patient, fullUrl, "match"));
+            
+            PatientEntity entity = PatientMapper.patientEntity(patient, fullUrl, "match");
+            
+            if (entity.getIdentifier() == null) {
+                repository.findById(id)
+                        .ifPresent(existing -> entity.setIdentifier(existing.getIdentifier()));
+            }
+            return repository.save(entity);
 
         } catch (Exception e) {
             throw new DatabaseException("Failed to save Patient.");

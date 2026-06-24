@@ -1,6 +1,7 @@
 package com.poc.backend.service;
 
 import org.hl7.fhir.r4.model.AllergyIntolerance;
+import org.hl7.fhir.r4.model.Identifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -10,6 +11,7 @@ import com.poc.backend.exception.DatabaseException;
 import com.poc.backend.exception.FHIRClientException;
 import com.poc.backend.mapper.AllergyIntoleranceMapper;
 import com.poc.backend.repository.AllergyIntoleranceRepository;
+import com.poc.backend.utility.IdGenerator;
 
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 
@@ -39,6 +41,13 @@ public class AllergyIntoleranceService {
             throw new BadRequestException("Allergy code is required.");
         }
 
+        // identifier generation
+        if (a.getIdentifier().isEmpty()) {
+            Identifier id = new Identifier();
+            id.setValue(IdGenerator.generateIdentifier("ALL-", 5, 5));
+            a.addIdentifier(id);
+        }
+
         // core creation
         try {
             return (AllergyIntolerance) fhirClient
@@ -57,12 +66,23 @@ public class AllergyIntoleranceService {
         try {
             String id = a.getIdElement().getIdPart();
 
+            // generate full url for the particular entry
             String fullUrl = ServletUriComponentsBuilder
                 .fromCurrentContextPath()
                 .path("/AllergyIntolerance/")
                 .toUriString() + id;
 
-            return repository.save(AllergyIntoleranceMapper.toEntity(a, fullUrl, "match"));
+            AllergyIntoleranceEntity entity = AllergyIntoleranceMapper.toEntity(a, fullUrl, "match");
+
+            // Preserve existing identifier 
+            if (entity.getIdentifier() == null) {
+                repository.findById(id)
+                        .ifPresent(existing -> entity.setIdentifier(existing.getIdentifier()));
+            }
+
+            // save to db
+            return repository.save(entity);
+
         } catch (Exception e) {
             throw new DatabaseException("Failed to save AllergyIntolerance.");
         }
@@ -85,6 +105,7 @@ public class AllergyIntoleranceService {
                 .resource(a)
                 .execute()
                 .getResource();
+                
         } catch (Exception e) {
             throw new FHIRClientException("Failed to update AllergyIntolerance.");
         }

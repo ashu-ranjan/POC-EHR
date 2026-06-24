@@ -33,8 +33,12 @@ public class AllergyIntoleranceEntity {
 
     private String code;
 
+    
     private String reaction;
     private String severity;
+
+    @Column(columnDefinition = "TEXT")
+    private String identifier;
 
     private OffsetDateTime recordedDate;
 

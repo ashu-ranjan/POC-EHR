@@ -20,24 +20,42 @@ public class AllergyIntoleranceMapper {
 
         AllergyIntoleranceEntity entity = new AllergyIntoleranceEntity();
 
+        // Id
         entity.setId(a.getIdElement().getIdPart());
 
+        // Type
         if (a.hasType()) {
             entity.setType(a.getType().toCode());
         }
 
+        // Clinical Status
         if (a.hasClinicalStatus()) {
-            entity.setClinicalStatus(
+            if (!a.getClinicalStatus().getCoding().isEmpty()) {
+                entity.setClinicalStatus(
                     a.getClinicalStatus().getCodingFirstRep().getCode()
-            );
+                );
+            } else if (a.getClinicalStatus().hasText()) {
+                entity.setClinicalStatus(
+                    a.getClinicalStatus().getText()
+                );
+            }
         }
-
+        
+        // Verification Status
         if (a.hasVerificationStatus()) {
-            entity.setVerificationStatus(
+            if (!a.getVerificationStatus().getCoding().isEmpty()) {
+                entity.setVerificationStatus(
                     a.getVerificationStatus().getCodingFirstRep().getCode()
-            );
+                );
+            } else if (a.getVerificationStatus().hasText()) {
+                entity.setVerificationStatus(
+                    a.getVerificationStatus().getText()
+                );
+            }
         }
 
+
+        // Code
         if (a.hasCode()) {
             if (a.getCode().hasText()) {
                 entity.setCode(a.getCode().getText());
@@ -48,6 +66,7 @@ public class AllergyIntoleranceMapper {
             }
         }
 
+        // Record date
         if (a.hasRecordedDate()) {
             entity.setRecordedDate(
                     a.getRecordedDate().toInstant().atOffset(ZoneOffset.UTC)
@@ -75,15 +94,17 @@ public class AllergyIntoleranceMapper {
             entity.setEncounter(enc);
         }
 
-        // reaction
+        // Reaction
         if (!a.getReaction().isEmpty()) {
 
             var r = a.getReactionFirstRep();
 
-            if (!r.getManifestation().isEmpty()) {
+            if (r.hasDescription()) {
+                entity.setReaction(r.getDescription());
+            } 
+            else if (!r.getManifestation().isEmpty()) {
                 entity.setReaction(
-                        r.getManifestationFirstRep()
-                         .getText()
+                    r.getManifestationFirstRep().getText()
                 );
             }
 
@@ -92,6 +113,7 @@ public class AllergyIntoleranceMapper {
             }
         }
 
+        // Meta
         if (a.getMeta() != null) {
             entity.setVersionId(a.getMeta().getVersionId());
 
@@ -102,6 +124,11 @@ public class AllergyIntoleranceMapper {
                                 .atOffset(ZoneOffset.UTC)
                 );
             }
+        }
+
+        // Identifier
+        if(!a.getIdentifier().isEmpty()){
+            entity.setIdentifier(a.getIdentifierFirstRep().getValue());
         }
 
         entity.setFullUrl(fullUrl);

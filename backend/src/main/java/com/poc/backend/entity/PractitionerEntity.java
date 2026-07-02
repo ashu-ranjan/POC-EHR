@@ -34,7 +34,10 @@ public class PractitionerEntity {
     private boolean active;
 
     // Identifier
+    @Column(unique = true)
     private String email;
+
+    @Column(unique = true)
     private String identifier;
 
     // Meta

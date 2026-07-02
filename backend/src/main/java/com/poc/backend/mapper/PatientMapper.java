@@ -39,6 +39,18 @@ public class PatientMapper {
                                                                 .toInstant()
                                                                 .atZone(java.time.ZoneId.systemDefault())
                                                                 .toLocalDate() : null);
+
+        // Telecome
+        if (!patient.getTelecom().isEmpty()) {
+
+            patient.getTelecom()
+                    .stream()
+                    .filter(t -> t.getSystem() != null
+                            && t.getSystem().toCode().equals("email"))
+                    .findFirst()
+                    .ifPresent(t -> entity.setEmail(t.getValue()));
+        }
+
                                                             
         // Meta
         if(patient.getMeta() != null){

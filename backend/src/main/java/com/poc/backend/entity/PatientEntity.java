@@ -44,6 +44,10 @@ public class PatientEntity {
     @Column(name = "birth_date")
     private LocalDate birthDate;
 
+    // Email
+    @Column(name = "email", unique = true)
+    private String email;
+
     // Meta
     @Column(name = "last_updated")
     private OffsetDateTime lastUpdated;

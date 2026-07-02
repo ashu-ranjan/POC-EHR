@@ -1,6 +1,5 @@
 package com.poc.backend.service;
 
-import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.Practitioner;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -11,8 +10,6 @@ import com.poc.backend.exception.DatabaseException;
 import com.poc.backend.exception.FHIRClientException;
 import com.poc.backend.mapper.PractitionerMapper;
 import com.poc.backend.repository.PractitionerRepository;
-import com.poc.backend.utility.IdGenerator;
-
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 
 @Service
@@ -36,17 +33,38 @@ public class PractitionerService {
         if(!practitioner.hasName()){
             throw new BadRequestException("Practitioner name is required.");
         }
-
-        // identifier generation
+ 
+        // identifier validation
         if(practitioner.getIdentifier().isEmpty()){
-            Identifier identifier = new Identifier();
-            identifier.setSystem("http://hospital-system/practitioner");
-            identifier.setValue(
-                    IdGenerator.generateIdentifier("PRAC-", 4, 6)
+            throw new BadRequestException(
+                    "Practitioner identifier is required."
             );
-
-            practitioner.addIdentifier(identifier);
         }
+
+        String identifier =
+                practitioner.getIdentifierFirstRep().getValue();
+
+        if(repository.existsByIdentifier(identifier)){
+            throw new BadRequestException(
+                    "Practitioner identifier already exists."
+            );
+        }
+
+        // Email validation
+        
+        if(practitioner.getTelecom().isEmpty()){
+                throw new BadRequestException(
+                        "Practitioner email is required.");
+            }
+
+            String email =
+                    practitioner.getTelecomFirstRep()
+                                .getValue();
+
+            if(repository.existsByEmail(email)){
+                throw new BadRequestException(
+                        "Practitioner email already exists.");
+            }
 
         // core creation
         try {

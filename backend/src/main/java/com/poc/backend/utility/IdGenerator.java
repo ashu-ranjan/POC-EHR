@@ -17,35 +17,7 @@ public class IdGenerator {
         return id.toString();
     }
 
-    // // Patient Id generator
-
-    // public static String generatePatientId(String prefix, int minLen, int maxLen){
-    //     return prefix + "-" + generate(minLen, maxLen);
-    // }
-
-    // // Practitioner Id generator
-
-    // public static String generateDoctorId(String prefix, int minLen, int maxLen){
-    //     return prefix + "-" + generate(minLen, maxLen);
-    // }
-
-    // // Practitioner Identifier generator
-
-    // public static String generateDocIdentifier(String prefix, int minLen, int maxLen){
-    //     return prefix + generate(minLen, maxLen);
-    // }
-
-    // // Organization Identifier generator
-
-    // public static String generateOrgIdentifier(String prefix, int minLen, int maxLen){
-    //     return prefix + generate(minLen, maxLen);
-    // }
-
-    // // Location Identifier Generator
-
-    // public static String generateLocIdentifier(String prefix, int minLen, int maxLen){
-    //     return prefix + generate(minLen, maxLen);
-    // }
+    
 
 
     
